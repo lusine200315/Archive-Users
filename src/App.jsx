@@ -33,7 +33,7 @@ function App() {
     let salary = parseInt(user.salary) + 50000;
 
     axios
-      .put(`http://localhost:3004/users/${user.id}`, { salary })
+      .patch(`http://localhost:3004/users/${user.id}`, { salary })
       .then((res) => {
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
