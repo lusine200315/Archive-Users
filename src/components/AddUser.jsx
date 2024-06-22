@@ -1,7 +1,18 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import Types from "prop-types";
 import { toast } from "react-toastify";
+
+const schema = yup.object().shape({
+  name: yup.string().required("Please fill your name").min(3, "Name must be at least 3 characters"),
+  surname: yup.string().required("Please fill your surname"),
+  salary: yup
+    .number()
+    .typeError("Salary must be a number")
+    .required("Please fill your salary"),
+});
 
 export const AddUser = ({ onAdd }) => {
   const {
@@ -9,12 +20,11 @@ export const AddUser = ({ onAdd }) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   const handleAdd = (data) => {
-    if (isNaN(+data.salary)) {
-      return toast.error("Salary must be a number");
-    }
     axios.post("http://localhost:3004/users", data).then((res) => {
       onAdd(res.data);
       reset();
@@ -26,20 +36,16 @@ export const AddUser = ({ onAdd }) => {
       <h1>Add User</h1>
       <form onSubmit={handleSubmit(handleAdd)}>
         <label>name</label>
-        <input {...register("name", { required: true, minLength: 3 })} />
-        {errors.name && <p style={{ color: "red" }}>Please fill your name</p>}
+        <input {...register("name")} />
+        {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
 
         <label>surname</label>
-        <input {...register("surname", { required: true })} />
-        {errors.surname && (
-          <p style={{ color: "red" }}>Please fill your surname</p>
-        )}
+        <input {...register("surname")} />
+        {errors.surname && <p style={{ color: "red" }}>{errors.surname.message}</p>}
 
         <label>salary</label>
-        <input {...register("salary", { required: true })} />
-        {errors.salary && (
-          <p style={{ color: "red" }}>Please fill your salary</p>
-        )}
+        <input {...register("salary")} />
+        {errors.salary && <p style={{ color: "red" }}>{errors.salary.message}</p>}
 
         <button>Save</button>
       </form>
